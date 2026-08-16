@@ -17,7 +17,7 @@ const execFileAsync = promisify(execFile);
 
 const BEGIN = "# ai-code-tracker begin";
 const END = "# ai-code-tracker end";
-const PACKAGED_VERSION = "1.0.6";
+const PACKAGED_VERSION = "1.0.7";
 
 export function moduleDirFromFileUrl(fileUrl, pathModule = path, fileUrlToPath = fileURLToPath) {
   return pathModule.dirname(fileUrlToPath(fileUrl));
