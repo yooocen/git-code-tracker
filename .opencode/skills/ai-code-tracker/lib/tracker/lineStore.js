@@ -23,15 +23,21 @@ export async function appendPendingLines(repoRoot, filePath, lines, options = {}
   const countBlankLines = options.countBlankLines ?? false;
   const dedupeExisting = options.dedupeExisting ?? false;
   const replace = options.replace ?? false;
+  const aiTool = options.aiTool ?? null;
   return withFileLock(lockPath(repoRoot, "pending-lines"), async () => {
     const pending = await loadPendingLines(repoRoot);
     const base = replace ? [] : (pending[filePath] ?? []);
+    const firstTool = pending[filePath]?.find((entry) => entry.ai_tool)?.ai_tool ?? aiTool;
     const existing = new Set(base.map((e) => e.content));
     const additions = [];
     for (const line of lines) {
       if (!countBlankLines && line.trim() === "") { continue; }
       if (dedupeExisting && existing.has(line)) { continue; }
-      additions.push({ content: line, consumed: false });
+      additions.push({
+        content: line,
+        ...(firstTool ? { ai_tool: firstTool } : {}),
+        consumed: false,
+      });
     }
     if (replace && additions.length > 0) {
       pending[filePath] = additions;

@@ -24,7 +24,7 @@ test("records added lines for edited file", async () => {
   });
 
   assert.deepEqual(await loadPendingLines(repoRoot), {
-    "src/a.js": [{ content: "two", consumed: false }],
+    "src/a.js": [{ content: "two", ai_tool: "opencode", consumed: false }],
   });
 });
 
@@ -43,8 +43,8 @@ test("records all lines as added when before snapshot is missing (new file)", as
   assert.deepEqual(result, { recorded: 3 });
   assert.deepEqual(await loadPendingLines(repoRoot), {
     "src/a.js": [
-      { content: "one", consumed: false },
-      { content: "two", consumed: false },
+      { content: "one", ai_tool: "opencode", consumed: false },
+      { content: "two", ai_tool: "opencode", consumed: false },
     ],
   });
 });
@@ -65,8 +65,8 @@ test("records all lines as added when before snapshot is empty (new file)", asyn
   assert.deepEqual(result, { recorded: 3 });
   assert.deepEqual(await loadPendingLines(repoRoot), {
     "src/a.js": [
-      { content: "one", consumed: false },
-      { content: "two", consumed: false },
+      { content: "one", ai_tool: "opencode", consumed: false },
+      { content: "two", ai_tool: "opencode", consumed: false },
     ],
   });
 });
@@ -100,7 +100,7 @@ test("plugin exposes opencode hook object and records tool before/after events",
   });
 
   assert.deepEqual(await loadPendingLines(repoRoot), {
-    "src/b.js": [{ content: "two", consumed: false }],
+    "src/b.js": [{ content: "two", ai_tool: "opencode", consumed: false }],
   });
 });
 
@@ -131,8 +131,8 @@ test("plugin records all lines when Write creates a new file", async () => {
 
   assert.deepEqual(await loadPendingLines(repoRoot), {
     "src/new.js": [
-      { content: "line1", consumed: false },
-      { content: "line2", consumed: false },
+      { content: "line1", ai_tool: "opencode", consumed: false },
+      { content: "line2", ai_tool: "opencode", consumed: false },
     ],
   });
 });

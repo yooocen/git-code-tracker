@@ -21,6 +21,7 @@ export async function runClaudeCodeHook(mode, options = {}) {
   const toolName = input.tool_name;
   const toolUseId = input.tool_use_id;
   const cwd = input.cwd ?? process.cwd();
+  const aiTool = options.aiTool ?? detectAiTool();
 
   if (!toolUseId) return;
 
@@ -38,7 +39,7 @@ export async function runClaudeCodeHook(mode, options = {}) {
     if (mode === "pre") {
       await handleBashPre({ repoRoot, toolUseId });
     } else if (mode === "post") {
-      await handleBashPost({ repoRoot, toolUseId, config });
+      await handleBashPost({ repoRoot, toolUseId, config, aiTool });
     }
     return;
   }
@@ -54,7 +55,7 @@ export async function runClaudeCodeHook(mode, options = {}) {
   if (mode === "pre") {
     await handlePre({ repoRoot, absolutePath, relative, toolUseId });
   } else if (mode === "post") {
-    await handlePost({ repoRoot, absolutePath, relative, toolUseId, config });
+      await handlePost({ repoRoot, absolutePath, relative, toolUseId, config, aiTool });
   }
 }
 
@@ -81,7 +82,7 @@ async function handlePre({ repoRoot, absolutePath, relative, toolUseId }) {
   }
 }
 
-async function handlePost({ repoRoot, absolutePath, relative, toolUseId, config }) {
+async function handlePost({ repoRoot, absolutePath, relative, toolUseId, config, aiTool }) {
   try {
     const dir = snapshotDir(repoRoot);
     const snapshotFile = path.join(dir, `${toolUseId}.json`);
@@ -111,6 +112,7 @@ async function handlePost({ repoRoot, absolutePath, relative, toolUseId, config 
         countBlankLines: config.countBlankLines,
         dedupeExisting: true,
         replace: true,
+        aiTool,
       });
     } else {
       await appendPendingLines(repoRoot, relative, [], { replace: true });
@@ -139,7 +141,7 @@ async function handleBashPre({ repoRoot, toolUseId }) {
   }
 }
 
-async function handleBashPost({ repoRoot, toolUseId, config }) {
+async function handleBashPost({ repoRoot, toolUseId, config, aiTool }) {
   try {
     const dir = snapshotDir(repoRoot);
     const snapshotFile = path.join(dir, `bash-${toolUseId}.json`);
@@ -164,7 +166,7 @@ async function handleBashPost({ repoRoot, toolUseId, config }) {
       const content = await safeRead(absolutePath);
       const lines = content.split(/\r?\n/).filter((l) => config.countBlankLines || l.trim() !== "");
       if (lines.length > 0) {
-        await appendPendingLines(repoRoot, file, lines, { countBlankLines: config.countBlankLines, dedupeExisting: true, replace: true });
+        await appendPendingLines(repoRoot, file, lines, { countBlankLines: config.countBlankLines, dedupeExisting: true, replace: true, aiTool });
         trackedCount++;
       }
     }
@@ -228,6 +230,10 @@ function toPosixPath(p) {
 
 function originalSnapshotName(relative) {
   return `original-${relative.replace(/[^a-zA-Z0-9._-]/g, "_")}.json`;
+}
+
+function detectAiTool() {
+  return process.argv[1]?.includes(`${path.sep}.cac${path.sep}`) ? "codeagent-cli" : "claude-code";
 }
 
 async function relativeToRepo(repoRoot, absolutePath) {

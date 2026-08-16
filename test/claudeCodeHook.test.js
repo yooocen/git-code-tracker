@@ -67,7 +67,10 @@ test("post hook reads snapshot and records added lines", async () => {
   await runClaudeCodeHook("post", { stdin: postInput(repoRoot, "src/a.js", "toolu_002") });
 
   assert.deepEqual(await loadPendingLines(repoRoot), {
-    "src/a.js": [{ content: "two", consumed: false }, { content: "three", consumed: false }],
+    "src/a.js": [
+      { content: "two", ai_tool: "claude-code", consumed: false },
+      { content: "three", ai_tool: "claude-code", consumed: false },
+    ],
   });
 
   await assert.rejects(fs.access(path.join(snapshotDir(repoRoot), "toolu_002.json")));

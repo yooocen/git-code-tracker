@@ -5,7 +5,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { appendPendingLines, consumeMatchedLines, loadPendingLines } from "../src/tracker/lineStore.js";
 
-const E = (content, consumed = false) => ({ content, consumed });
+const E = (content, consumed = false, ai_tool) => ({
+  content,
+  ...(ai_tool ? { ai_tool } : {}),
+  consumed,
+});
 
 test("appends nonblank pending lines with consumed=false", async () => {
   const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ai-lines-"));
@@ -104,6 +108,17 @@ test("replace mode overwrites existing pending lines for a file", async () => {
   await appendPendingLines(repoRoot, "src/a.js", ["new-1"], { replace: true });
   assert.deepEqual(await loadPendingLines(repoRoot), {
     "src/a.js": [E("new-1")],
+  });
+});
+
+test("replace mode preserves the first AI tool for a file", async () => {
+  const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), "ai-lines-"));
+
+  await appendPendingLines(repoRoot, "src/a.js", ["old"], { aiTool: "claude-code" });
+  await appendPendingLines(repoRoot, "src/a.js", ["new"], { replace: true, aiTool: "opencode" });
+
+  assert.deepEqual(await loadPendingLines(repoRoot), {
+    "src/a.js": [E("new", false, "claude-code")],
   });
 });
 

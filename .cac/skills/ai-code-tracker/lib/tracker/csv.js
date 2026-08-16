@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { safeFileName, trackerDir } from "./paths.js";
 
-export const CSV_HEADER = "author,ai_lines,total_lines,is_ai_commit,commit_id,date,message";
+export const CSV_HEADER = "author,ai_tool,ai_lines,total_lines,is_ai_commit,commit_id,date,message";
 
 function escapeCsv(value) {
   const text = String(value ?? "");
@@ -13,6 +13,7 @@ function escapeCsv(value) {
 function formatRecord(record) {
   return [
     record.author,
+    record.ai_tool,
     record.ai_lines,
     record.total_lines,
     Boolean(record.is_ai_commit),

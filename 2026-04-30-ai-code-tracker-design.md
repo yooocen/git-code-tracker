@@ -348,13 +348,14 @@ node .ai-tracking/bin/ai-code-stats.js --last 20
 ## CSV 结构
 
 ```csv
-author,ai_lines,total_lines,commit_id,date,message
+author,ai_tool,ai_lines,total_lines,commit_id,date,message
 cyd,42,58,a1b2c3d,2026-05-05,Implement login validation
 ```
 
 | 列名 | 类型 | 说明 |
 |------|------|------|
 | author | string | commit 作者名称 |
+| ai_tool | string | 首次参与本批 AI 修改的 agent |
 | ai_lines | integer | 匹配到 AI 记录的新增行数 |
 | total_lines | integer | 本次代码 commit 的新增总行数 |
 | commit_id | string | 被统计的代码 commit SHA |

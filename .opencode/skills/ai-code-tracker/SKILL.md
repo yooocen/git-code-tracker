@@ -60,6 +60,7 @@ Tell the user which file is blocking tracking. After the user releases the file 
 - This is project-local only. Do not write to global opencode config or global command directories.
 - To use in another project, copy this directory to `.opencode/skills/ai-code-tracker/`, then ask opencode to use `ai-code-tracker`.
 - `is_ai_commit` means the commit was created by an AI agent (opencode, Claude Code, or codeagent), detected via process tree inspection.
+- `ai_tool` records the first agent that edited the AI-tracked lines for a commit; it is independent of who ran `git commit`.
 - CSV files are pruned on tracker runs so records for commits no longer reachable from `HEAD` after reset are removed.
 - Cherry-picked commits with `-x` inherit AI line statistics from the source commit.
 - Before `git push`, pending tracking files are archived under `.ai-tracking/archive/` and removed from active tracking so old AI lines do not affect the next editing session.

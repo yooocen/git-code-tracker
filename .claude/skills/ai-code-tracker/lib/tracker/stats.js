@@ -7,6 +7,7 @@ export function buildPendingCommit({
 }) {
   let totalLines = 0;
   let aiLines = 0;
+  let aiTool;
   const matchedLines = {};
   const pendingPools = buildPendingPools(pendingLines);
   const renameSourcesByTarget = buildRenameSourcesByTarget(renamedFiles);
@@ -26,8 +27,10 @@ export function buildPendingCommit({
       });
       if (!sourcePath) { continue; }
       aiLines += 1;
-      if (!matchedLines[sourcePath]) { matchedLines[sourcePath] = []; }
-      matchedLines[sourcePath].push(line);
+      aiTool ??= sourcePath.ai_tool;
+      const matchedSourcePath = sourcePath.filePath;
+      if (!matchedLines[matchedSourcePath]) { matchedLines[matchedSourcePath] = []; }
+      matchedLines[matchedSourcePath].push(line);
     }
   }
 
@@ -35,6 +38,7 @@ export function buildPendingCommit({
     ai_lines: aiLines,
     total_lines: totalLines,
     matched_lines: matchedLines,
+    ...(aiTool ? { ai_tool: aiTool } : {}),
   };
 }
 
@@ -43,7 +47,7 @@ function buildPendingPools(pendingLines) {
   for (const [filePath, entries] of Object.entries(pendingLines ?? {})) {
     pools[filePath] = entries
       .filter((e) => !e.consumed)
-      .map((e) => e.content);
+      .map((e) => ({ content: e.content, ai_tool: e.ai_tool }));
   }
   return pools;
 }
@@ -58,15 +62,18 @@ function buildRenameSourcesByTarget(renamedFiles) {
 }
 
 function findMatchSource({ pendingPools, filePath, line, renameSources, missingPending }) {
-  if (consumeFromPool(pendingPools[filePath], line)) { return filePath; }
+  const direct = consumeFromPool(pendingPools[filePath], line);
+  if (direct) { return { filePath, ai_tool: direct.ai_tool }; }
 
   for (const source of renameSources) {
-    if (consumeFromPool(pendingPools[source], line)) { return source; }
+    const renamed = consumeFromPool(pendingPools[source], line);
+    if (renamed) { return { filePath: source, ai_tool: renamed.ai_tool }; }
   }
 
   for (const source of missingPending) {
     if (source === filePath || renameSources.includes(source)) { continue; }
-    if (consumeFromPool(pendingPools[source], line)) { return source; }
+    const fallback = consumeFromPool(pendingPools[source], line);
+    if (fallback) { return { filePath: source, ai_tool: fallback.ai_tool }; }
   }
 
   return null;
@@ -74,8 +81,7 @@ function findMatchSource({ pendingPools, filePath, line, renameSources, missingP
 
 function consumeFromPool(pool, line) {
   if (!pool) { return false; }
-  const index = pool.indexOf(line);
+  const index = pool.findIndex((entry) => entry.content === line);
   if (index === -1) { return false; }
-  pool.splice(index, 1);
-  return true;
+  return pool.splice(index, 1)[0];
 }

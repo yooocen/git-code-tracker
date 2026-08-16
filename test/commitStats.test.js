@@ -235,6 +235,7 @@ test("post-commit writes csv and consumes matched lines", async () => {
   await fs.writeFile(pendingCommitPath(repoRoot), JSON.stringify({
     ai_lines: 1,
     total_lines: 2,
+    ai_tool: "claude-code",
     is_ai_commit: true,
     matched_lines: { "src/a.js": ["ai line"] },
   }), "utf8");
@@ -264,7 +265,7 @@ test("post-commit writes csv and consumes matched lines", async () => {
 
   const csv = await fs.readFile(path.join(repoRoot, ".ai-tracking", "cyd.csv"), "utf8");
   assert.match(csv, /is_ai_commit/);
-  assert.match(csv, /true,abc123,2026-05-05 12:34:56/);
+  assert.match(csv, /claude-code,1,2,true,abc123,2026-05-05 12:34:56/);
   assert.deepEqual(await loadPendingLines(repoRoot), { "src/a.js": [{ content: "ai line", consumed: true }, { content: "left", consumed: false }] });
   assert(gitCalls.some((args) => args[0] === "commit"));
 });
@@ -354,8 +355,8 @@ test("post-commit copies AI lines from cherry-pick source", async () => {
   const csv = await fs.readFile(originalCsv, "utf8");
   const records = csv.trim().split("\n").slice(1);
   assert.equal(records.length, 2);
-  assert.match(records[0], /^dev,8,20,true,deadbeef/);
-  assert.match(records[1], /^dev,8,20,true,abc123/);
+  assert.match(records[0], /^dev,,8,20,true,deadbeef/);
+  assert.match(records[1], /^dev,,8,20,true,abc123/);
 });
 
 test("post-commit does not copy AI lines when no cherry-pick source", async () => {
@@ -391,7 +392,7 @@ test("post-commit does not copy AI lines when no cherry-pick source", async () =
   });
 
   const csv = await fs.readFile(path.join(repoRoot, ".ai-tracking", "dev.csv"), "utf8");
-  assert.match(csv, /dev,0,10,false,abc123/);
+  assert.match(csv, /dev,,0,10,false,abc123/);
 });
 
 test("pre-push archives and clears pending tracking files", async () => {

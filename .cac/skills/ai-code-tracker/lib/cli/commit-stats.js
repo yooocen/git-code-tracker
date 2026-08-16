@@ -218,6 +218,7 @@ async function runPostCommit({ repoRoot, gitImpl, gitRawImpl, env }) {
 
   const record = {
     author,
+    ai_tool: pendingCommit.ai_tool ?? "",
     ai_lines: aiLines,
     total_lines: totalLines,
     is_ai_commit: pendingCommit.is_ai_commit === true,

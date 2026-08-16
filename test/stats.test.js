@@ -72,6 +72,20 @@ test("buildPendingCommit matches lines from migrated legacy data", () => {
   assert.deepEqual(result.matched_lines, { "src/a.js": ["legacy-line"] });
 });
 
+test("buildPendingCommit carries the first AI tool from matched lines", () => {
+  const result = buildPendingCommit({
+    pendingLines: {
+      "src/a.js": [
+        { content: "first", ai_tool: "claude-code", consumed: false },
+        { content: "second", ai_tool: "opencode", consumed: false },
+      ],
+    },
+    addedLines: { "src/a.js": ["first", "second"] },
+  });
+
+  assert.equal(result.ai_tool, "claude-code");
+});
+
 test("buildPendingCommit excludes blank lines from total when countBlankLines is false", () => {
   const pendingLines = {
     "src/a.js": [E("line1"), E("line2")],

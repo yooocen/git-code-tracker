@@ -53,6 +53,8 @@ sequenceDiagram
 4. `git commit` 时，pre-commit hook 将 pending lines 与 staged diff 匹配，生成统计
 5. post-commit hook 将统计数据写入 CSV。`auto_tracking_commit: true`（默认）时还会创建一条追踪提交；`false` 时仅写入工作树，用户自行提交
 
+每条统计记录还会包含 `ai_tool`：首次参与该批 AI 修改的 agent（`opencode`、`claude-code` 或 `codeagent-cli`）。后续编辑不会覆盖该值。
+
 ### Snapshot（快照）
 
 快照是每次编辑文件**之前**捕获的文件内容副本，用于和编辑后的内容做 diff，计算 AI 新增了哪些行。

@@ -16,7 +16,7 @@ let bashBaselineHashes = null;
 let bashBaselineRepoRoot = null;
 let bashFallbackTimer = null;
 
-export async function recordEditedFile({ cwd = process.cwd(), filePath, before, after = "", replace = false }) {
+export async function recordEditedFile({ cwd = process.cwd(), filePath, before, after = "", replace = false, aiTool = "opencode" }) {
   const timer = startTimer();
   const repoRoot = await gitRepoRoot(cwd);
   const relative = await relativeToRepo(repoRoot, path.resolve(cwd, filePath));
@@ -37,6 +37,7 @@ export async function recordEditedFile({ cwd = process.cwd(), filePath, before, 
     countBlankLines: config.countBlankLines,
     dedupeExisting: true,
     replace,
+    aiTool,
   });
   await logInfo(repoRoot, "recordEditedFile", "recorded added lines", { file: relative, addedLines: added.length, newFile: isNewFile, durationMs: timer.elapsedMs() });
   return { recorded: added.length };
@@ -84,6 +85,7 @@ export const AiCodeTrackerPlugin = async ({ directory, worktree, client } = {}) 
           filePath,
           before: payload.before ?? payload.old ?? beforeSnapshots.get(key),
           after: await safeRead(path.resolve(eventCwd, filePath)),
+          aiTool: "opencode",
         });
         beforeSnapshots.delete(key);
       }, 250));
@@ -135,6 +137,7 @@ export const AiCodeTrackerPlugin = async ({ directory, worktree, client } = {}) 
         before,
         after: await safeRead(path.resolve(cwd, filePath)),
         replace: true,
+        aiTool: "opencode",
       });
     },
   };
@@ -223,6 +226,7 @@ async function recordBashChanges(prevHashes, currentHashes, repoRoot) {
         countBlankLines: config.countBlankLines,
         dedupeExisting: true,
         replace: true,
+        aiTool: "opencode",
       });
       trackedCount++;
     }
