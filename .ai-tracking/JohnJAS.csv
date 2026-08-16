@@ -1,5 +1,6 @@
-﻿author,ai_lines,total_lines,is_ai_commit,commit_id,date,message
-JohnJAS,0,199,false,9f41a6915314d6bba0400d9fd4d5e3355852ddc6,2026-07-23 16:47:09,fix. use git hook pre-push instead
-JohnJAS,0,68,false,509ad71e7821b95ae3d1a5c5c7ebc6e12fb24641,2026-07-23 20:31:54,feat: 新增手动发布工作流
-JohnJAS,0,106,true,f4b52f99ddda32633c3e03b7e552097068a7965c,2026-07-24 20:12:49,feat: 构建时注入版本号到分发安装器
-JohnJAS,0,61,false,e4a2c49f4705f75d7afb02eda9cd71821f3dbd24,2026-08-07 13:03:07,refactor: 拆分安装器与共享逻辑的可读性写法
+﻿author,ai_tool,ai_lines,total_lines,is_ai_commit,commit_id,date,message
+JohnJAS,,0,199,false,9f41a6915314d6bba0400d9fd4d5e3355852ddc6,2026-07-23 16:47:09,fix. use git hook pre-push instead
+JohnJAS,,0,68,false,509ad71e7821b95ae3d1a5c5c7ebc6e12fb24641,2026-07-23 20:31:54,feat: 新增手动发布工作流
+JohnJAS,,0,106,true,f4b52f99ddda32633c3e03b7e552097068a7965c,2026-07-24 20:12:49,feat: 构建时注入版本号到分发安装器
+JohnJAS,,0,61,false,e4a2c49f4705f75d7afb02eda9cd71821f3dbd24,2026-08-07 13:03:07,refactor: 拆分安装器与共享逻辑的可读性写法
+JohnJAS,,0,214,false,e763df33a6e16e3634bed34c24a36c1ffdc23f2e,2026-08-16 16:55:52,feat: 记录 AI 修改来源工具
